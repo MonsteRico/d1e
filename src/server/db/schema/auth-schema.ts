@@ -1,3 +1,4 @@
+import type { ColumnBaseConfig, ColumnDataType } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -5,6 +6,7 @@ import {
   boolean,
   integer,
   pgEnum,
+  PgColumn,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["admin", "tournament-admin", "captain", "player", "school-leader"]);
@@ -17,7 +19,9 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
+  discordId: text("discord_id").references((): PgColumn<ColumnBaseConfig<ColumnDataType, string>, object, object> => account.accountId),
   role: roleEnum().notNull().default("player")
+
 });
 
 export const session = pgTable("session", {
@@ -35,7 +39,7 @@ export const session = pgTable("session", {
 
 export const account = pgTable("account", {
   id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
+  accountId: text("account_id").unique().notNull(),
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
     .notNull()
